@@ -34,6 +34,14 @@ def get_book_name_and_author(url):
     return book_name, book_author
 
 
+def get_book_image(url):
+    response = requests.get(url)
+    check_for_redirect(response)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    image_url = soup.find('body').find('table').find('div', class_='bookimage').find('img')['src']
+    return image_url
+
 # url_download = 'http://tululu.org/txt.php?id=1'
 # file_path = download_book(url_download, 'Алиби')
 # print(file_path)
@@ -45,7 +53,9 @@ if __name__ == '__main__':
         try:
             url = 'https://tululu.org/b{}/'.format(number)
             book_name, book_author = get_book_name_and_author(url)
+            image_url = get_book_image(url)
             url_download = 'http://tululu.org/txt.php?id={}'.format(number)
             file_path = download_book(url_download, book_name)
+            print(book_name, image_url)
         except requests.exceptions.HTTPError:
             print("Перенаправление")

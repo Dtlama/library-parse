@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import json
 import requests
 import lxml
+import re
 import os
 
 
@@ -44,6 +45,20 @@ def get_book_image(url):
     return image_url
 
 
+def get_book_comments(url):
+    response = requests.get(url)
+    check_for_redirect(response)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_comments = soup.find('body').find('table').find_all(class_='texts')
+    book_comments_text = []
+    for book_comment in book_comments:
+        comment = book_comment.get_text('span').split('span')[2]
+        book_comments_text.append(comment)
+        print(comment)
+    return book_comments_text
+
+
 def download_image(url, filename, folder="images/"):
     response = requests.get(url)
     check_for_redirect(response)
@@ -58,7 +73,7 @@ def download_image(url, filename, folder="images/"):
         file.write(response.content)
     return file_path
 
-#https://tululu.org/b5/
+
 if __name__ == '__main__':
     os.makedirs('books', exist_ok=True)
     os.makedirs('images', exist_ok=True)
@@ -67,10 +82,10 @@ if __name__ == '__main__':
             url = 'https://tululu.org/b{}/'.format(number)
             book_name, book_author = get_book_name_and_author(url)
             image_url = get_book_image(url)
-            print(image_url)
             download_image(image_url, number)
+            book_comments = get_book_comments(url)
             url_download = 'http://tululu.org/txt.php?id={}'.format(number)
             file_path = download_book(url_download, book_name)
-            print(book_name, image_url)
+            #print(book_name, book_author, book_comments)
         except requests.exceptions.HTTPError:
             print("Перенаправление")

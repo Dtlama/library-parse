@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import argparse
 import requests
 import os
 
@@ -82,7 +83,11 @@ def download_image(url, filename, folder="images/"):
 if __name__ == '__main__':
     os.makedirs('books', exist_ok=True)
     os.makedirs('images', exist_ok=True)
-    for number in range(1, 11):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_id', type=int)
+    parser.add_argument('--end_id', type=int)
+    arguments = parser.parse_args()
+    for number in range(arguments.start_id, arguments.end_id):
         try:
             url = 'https://tululu.org/b{}/'.format(number)
             book_name, book_author = get_book_name_and_author(url)

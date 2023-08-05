@@ -1,8 +1,5 @@
 from bs4 import BeautifulSoup
-import json
 import requests
-import lxml
-import re
 import os
 
 

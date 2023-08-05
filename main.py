@@ -55,8 +55,16 @@ def get_book_comments(url):
     for book_comment in book_comments:
         comment = book_comment.get_text('span').split('span')[2]
         book_comments_text.append(comment)
-        print(comment)
     return book_comments_text
+
+
+def get_book_genre(url):
+    response = requests.get(url)
+    check_for_redirect(response)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_genres = soup.find('body').find('table').find('span', class_='d_book').find('a').text
+    return book_genres
 
 
 def download_image(url, filename, folder="images/"):
@@ -84,8 +92,9 @@ if __name__ == '__main__':
             image_url = get_book_image(url)
             download_image(image_url, number)
             book_comments = get_book_comments(url)
+            book_genres = get_book_genre(url)
             url_download = 'http://tululu.org/txt.php?id={}'.format(number)
             file_path = download_book(url_download, book_name)
-            #print(book_name, book_author, book_comments)
+            print("Заголовок:" + book_name, book_genres)
         except requests.exceptions.HTTPError:
             print("Перенаправление")
